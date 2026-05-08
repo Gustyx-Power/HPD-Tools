@@ -21,11 +21,47 @@ namespace FiveMPoliceOverlay.Infrastructure
         [DllImport("user32.dll")]
         private static extern IntPtr GetKeyboardLayout(uint idThread);
 
+        [DllImport("user32.dll", SetLastError = true)]
+        private static extern bool OpenClipboard(IntPtr hWndNewOwner);
+
+        [DllImport("user32.dll", SetLastError = true)]
+        private static extern bool CloseClipboard();
+
+        [DllImport("user32.dll", SetLastError = true)]
+        private static extern bool EmptyClipboard();
+
+        [DllImport("user32.dll", SetLastError = true)]
+        private static extern IntPtr SetClipboardData(uint uFormat, IntPtr hMem);
+
+        [DllImport("user32.dll", SetLastError = true)]
+        private static extern IntPtr GetClipboardData(uint uFormat);
+
+        [DllImport("kernel32.dll", SetLastError = true)]
+        private static extern IntPtr GlobalAlloc(uint uFlags, UIntPtr dwBytes);
+
+        [DllImport("kernel32.dll", SetLastError = true)]
+        private static extern IntPtr GlobalLock(IntPtr hMem);
+
+        [DllImport("kernel32.dll", SetLastError = true)]
+        private static extern bool GlobalUnlock(IntPtr hMem);
+
+        [DllImport("kernel32.dll", SetLastError = true)]
+        private static extern IntPtr GlobalFree(IntPtr hMem);
+
+        [DllImport("kernel32.dll", SetLastError = true)]
+        private static extern UIntPtr GlobalSize(IntPtr hMem);
+
         private const int INPUT_KEYBOARD = 1;
         private const uint KEYEVENTF_EXTENDEDKEY = 0x0001;
         private const uint KEYEVENTF_KEYUP = 0x0002;
         private const uint KEYEVENTF_UNICODE = 0x0004;
         private const uint KEYEVENTF_SCANCODE = 0x0008;
+
+        // Clipboard constants
+        private const uint CF_UNICODETEXT = 13;
+        private const uint GMEM_MOVEABLE = 0x0002;
+        private const uint GMEM_ZEROINIT = 0x0040;
+        private const uint GHND = GMEM_MOVEABLE | GMEM_ZEROINIT;
 
         [StructLayout(LayoutKind.Sequential)]
         private struct INPUT
@@ -94,6 +130,7 @@ namespace FiveMPoliceOverlay.Infrastructure
             
             // Letter keys
             VK_T = 0x54,        // T key (for FiveM chat)
+            VK_V = 0x56,        // V key (for paste)
             
             // Function keys
             F1 = 0x70,
@@ -135,6 +172,94 @@ namespace FiveMPoliceOverlay.Infrastructure
             }
 
             return true;
+        }
+
+        /// <summary>
+        /// Types text with optimization for long messages.
+        /// For messages >100 characters, uses clipboard paste (Ctrl+V) for better performance.
+        /// Falls back to TypeText if clipboard paste fails.
+        /// </summary>
+        /// <param name="text">The text to type</param>
+        /// <returns>True if text was sent successfully, false otherwise</returns>
+        public bool TypeTextOptimized(string text)
+        {
+            if (string.IsNullOrEmpty(text))
+                return true;
+
+            // For short messages, use regular typing
+            if (text.Length <= 100)
+            {
+                return TypeText(text);
+            }
+
+            // For long messages, try clipboard paste optimization
+            string? originalClipboard = null;
+            bool clipboardRestored = false;
+
+            try
+            {
+                // Save original clipboard content
+                originalClipboard = GetClipboardText();
+
+                // Set new clipboard content
+                if (!SetClipboardText(text))
+                {
+                    // Clipboard operation failed, fallback to typing
+                    return TypeText(text);
+                }
+
+                // Simulate Ctrl+V (paste)
+                if (!KeyDown(VirtualKeyCode.CONTROL))
+                    return false;
+
+                Thread.Sleep(10);
+
+                if (!PressKey(VirtualKeyCode.VK_V))
+                {
+                    KeyUp(VirtualKeyCode.CONTROL);
+                    return false;
+                }
+
+                Thread.Sleep(10);
+
+                if (!KeyUp(VirtualKeyCode.CONTROL))
+                    return false;
+
+                // Wait for paste to complete
+                Thread.Sleep(50);
+
+                // Restore original clipboard
+                if (originalClipboard != null)
+                {
+                    SetClipboardText(originalClipboard);
+                    clipboardRestored = true;
+                }
+                else
+                {
+                    ClearClipboard();
+                    clipboardRestored = true;
+                }
+
+                return true;
+            }
+            catch
+            {
+                // If anything fails, try to restore clipboard and fallback to typing
+                if (!clipboardRestored && originalClipboard != null)
+                {
+                    try
+                    {
+                        SetClipboardText(originalClipboard);
+                    }
+                    catch
+                    {
+                        // Ignore clipboard restore errors
+                    }
+                }
+
+                // Fallback to regular typing
+                return TypeText(text);
+            }
         }
 
         /// <summary>
@@ -261,6 +386,123 @@ namespace FiveMPoliceOverlay.Infrastructure
             // SendInput returns the number of events successfully inserted
             // Should be 2 (down + up) for success
             return result == 2;
+        }
+
+        /// <summary>
+        /// Gets the current clipboard text content.
+        /// </summary>
+        /// <returns>Clipboard text or null if clipboard is empty or contains non-text data</returns>
+        private string? GetClipboardText()
+        {
+            if (!OpenClipboard(IntPtr.Zero))
+                return null;
+
+            try
+            {
+                IntPtr hData = GetClipboardData(CF_UNICODETEXT);
+                if (hData == IntPtr.Zero)
+                    return null;
+
+                IntPtr pData = GlobalLock(hData);
+                if (pData == IntPtr.Zero)
+                    return null;
+
+                try
+                {
+                    return Marshal.PtrToStringUni(pData);
+                }
+                finally
+                {
+                    GlobalUnlock(hData);
+                }
+            }
+            finally
+            {
+                CloseClipboard();
+            }
+        }
+
+        /// <summary>
+        /// Sets the clipboard to the specified text.
+        /// </summary>
+        /// <param name="text">The text to set</param>
+        /// <returns>True if successful, false otherwise</returns>
+        private bool SetClipboardText(string text)
+        {
+            if (!OpenClipboard(IntPtr.Zero))
+                return false;
+
+            try
+            {
+                if (!EmptyClipboard())
+                    return false;
+
+                // Allocate global memory for the text
+                int byteCount = (text.Length + 1) * 2; // Unicode = 2 bytes per char + null terminator
+                IntPtr hGlobal = GlobalAlloc(GHND, (UIntPtr)byteCount);
+                if (hGlobal == IntPtr.Zero)
+                    return false;
+
+                try
+                {
+                    IntPtr pGlobal = GlobalLock(hGlobal);
+                    if (pGlobal == IntPtr.Zero)
+                    {
+                        GlobalFree(hGlobal);
+                        return false;
+                    }
+
+                    try
+                    {
+                        // Copy text to global memory
+                        Marshal.Copy(text.ToCharArray(), 0, pGlobal, text.Length);
+                        // Add null terminator
+                        Marshal.WriteInt16(pGlobal, text.Length * 2, 0);
+                    }
+                    finally
+                    {
+                        GlobalUnlock(hGlobal);
+                    }
+
+                    // Set clipboard data
+                    if (SetClipboardData(CF_UNICODETEXT, hGlobal) == IntPtr.Zero)
+                    {
+                        GlobalFree(hGlobal);
+                        return false;
+                    }
+
+                    // Clipboard now owns the memory, don't free it
+                    return true;
+                }
+                catch
+                {
+                    GlobalFree(hGlobal);
+                    throw;
+                }
+            }
+            finally
+            {
+                CloseClipboard();
+            }
+        }
+
+        /// <summary>
+        /// Clears the clipboard content.
+        /// </summary>
+        /// <returns>True if successful, false otherwise</returns>
+        private bool ClearClipboard()
+        {
+            if (!OpenClipboard(IntPtr.Zero))
+                return false;
+
+            try
+            {
+                return EmptyClipboard();
+            }
+            finally
+            {
+                CloseClipboard();
+            }
         }
 
         #endregion

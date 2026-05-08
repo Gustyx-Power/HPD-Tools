@@ -184,6 +184,110 @@ namespace FiveMPoliceOverlay.Infrastructure
             Assert.True(result, "TypeText should return true for long message (predefined template)");
         }
 
+        [Fact]
+        public void TypeTextOptimized_WithShortMessage_UsesTyping()
+        {
+            // Arrange
+            string shortMessage = "Short message";
+
+            // Act
+            bool result = _simulator.TypeTextOptimized(shortMessage);
+
+            // Assert
+            Assert.True(result, "TypeTextOptimized should return true for short message (<100 chars)");
+        }
+
+        [Fact]
+        public void TypeTextOptimized_WithLongMessage_UsesClipboard()
+        {
+            // Arrange
+            string longMessage = "DI INFORMASIKAN KEPADA SELURUH WARGA AGAR SEGERA MENGAMANKAN DIRI DAN MENCARI TEMPAT AMAN DIKARENAKAN KOTA MENGALAMI SIAGA III TERIMAKASIH.";
+
+            // Act
+            bool result = _simulator.TypeTextOptimized(longMessage);
+
+            // Assert
+            Assert.True(result, "TypeTextOptimized should return true for long message (>100 chars)");
+        }
+
+        [Fact]
+        public void TypeTextOptimized_WithEmptyString_ReturnsTrue()
+        {
+            // Arrange
+            string emptyText = "";
+
+            // Act
+            bool result = _simulator.TypeTextOptimized(emptyText);
+
+            // Assert
+            Assert.True(result, "TypeTextOptimized should return true for empty string");
+        }
+
+        [Fact]
+        public void TypeTextOptimized_WithNullString_ReturnsTrue()
+        {
+            // Arrange
+            string? nullText = null;
+
+            // Act
+            bool result = _simulator.TypeTextOptimized(nullText!);
+
+            // Assert
+            Assert.True(result, "TypeTextOptimized should return true for null string");
+        }
+
+        [Fact]
+        public void TypeTextOptimized_WithExactly100Chars_UsesTyping()
+        {
+            // Arrange
+            string exactly100Chars = new string('A', 100);
+
+            // Act
+            bool result = _simulator.TypeTextOptimized(exactly100Chars);
+
+            // Assert
+            Assert.True(result, "TypeTextOptimized should return true for exactly 100 characters (uses typing)");
+        }
+
+        [Fact]
+        public void TypeTextOptimized_With101Chars_UsesClipboard()
+        {
+            // Arrange
+            string exactly101Chars = new string('A', 101);
+
+            // Act
+            bool result = _simulator.TypeTextOptimized(exactly101Chars);
+
+            // Assert
+            Assert.True(result, "TypeTextOptimized should return true for 101 characters (uses clipboard)");
+        }
+
+        [Fact]
+        public void TypeTextOptimized_WithSiagaTotalTemplate_ReturnsTrue()
+        {
+            // Arrange - This is the longest predefined template (>200 chars)
+            string siagaTotalMessage = "DI INFORMASIKAN KEPADA SELURUH WARGA AGAR SEGERA MENGAMANKAN DIRI DAN MENCARI TEMPAT AMAN DIKARENAKAN MARAKNYA TINDAK KRIMINAL DAN SUDAH TIDAK KONDUSIF MAKA KOTA DITINGKATKAN KE SIAGA TOTAL. TERIMAKASIH.";
+
+            // Act
+            bool result = _simulator.TypeTextOptimized(siagaTotalMessage);
+
+            // Assert
+            Assert.True(result, "TypeTextOptimized should return true for Siaga Total template (longest predefined message)");
+        }
+
+        [Fact]
+        public void TypeTextOptimized_WithIndonesianCharacters_ReturnsTrue()
+        {
+            // Arrange - Long Indonesian text with special characters
+            string indonesianLongText = "DI INFORMASIKAN KEPADA SELURUH WARGA AGAR SEGERA MENGAMANKAN DIRI DAN MENCARI TEMPAT AMAN DIKARENAKAN KOTA MENGALAMI SIAGA II. TERIMAKASIH.";
+
+            // Act
+            bool result = _simulator.TypeTextOptimized(indonesianLongText);
+
+            // Assert
+            Assert.True(result, "TypeTextOptimized should return true for long Indonesian text");
+        }
+
         /// <summary>
         /// Manual test helper: Simulates opening FiveM chat and sending a message.
         /// This test is marked as skipped because it requires FiveM to be running.
