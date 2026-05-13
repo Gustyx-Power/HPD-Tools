@@ -19,6 +19,9 @@ namespace FiveMPoliceOverlay.Infrastructure
         private static extern ushort VkKeyScanEx(char ch, IntPtr dwhkl);
 
         [DllImport("user32.dll")]
+        private static extern uint MapVirtualKey(uint uCode, uint uMapType);
+
+        [DllImport("user32.dll")]
         private static extern IntPtr GetKeyboardLayout(uint idThread);
 
         [DllImport("user32.dll", SetLastError = true)]
@@ -56,6 +59,7 @@ namespace FiveMPoliceOverlay.Infrastructure
         private const uint KEYEVENTF_KEYUP = 0x0002;
         private const uint KEYEVENTF_UNICODE = 0x0004;
         private const uint KEYEVENTF_SCANCODE = 0x0008;
+        private const uint MAPVK_VK_TO_VSC = 0;
 
         // Clipboard constants
         private const uint CF_UNICODETEXT = 13;
@@ -287,6 +291,7 @@ namespace FiveMPoliceOverlay.Infrastructure
         /// <returns>True if successful, false otherwise</returns>
         public bool KeyDown(VirtualKeyCode keyCode)
         {
+            ushort scanCode = (ushort)MapVirtualKey((uint)keyCode, MAPVK_VK_TO_VSC);
             var input = new INPUT
             {
                 type = INPUT_KEYBOARD,
@@ -295,8 +300,8 @@ namespace FiveMPoliceOverlay.Infrastructure
                     ki = new KEYBDINPUT
                     {
                         wVk = (ushort)keyCode,
-                        wScan = 0,
-                        dwFlags = 0,
+                        wScan = scanCode,
+                        dwFlags = KEYEVENTF_SCANCODE,
                         time = 0,
                         dwExtraInfo = IntPtr.Zero
                     }
@@ -314,6 +319,7 @@ namespace FiveMPoliceOverlay.Infrastructure
         /// <returns>True if successful, false otherwise</returns>
         public bool KeyUp(VirtualKeyCode keyCode)
         {
+            ushort scanCode = (ushort)MapVirtualKey((uint)keyCode, MAPVK_VK_TO_VSC);
             var input = new INPUT
             {
                 type = INPUT_KEYBOARD,
@@ -322,8 +328,8 @@ namespace FiveMPoliceOverlay.Infrastructure
                     ki = new KEYBDINPUT
                     {
                         wVk = (ushort)keyCode,
-                        wScan = 0,
-                        dwFlags = KEYEVENTF_KEYUP,
+                        wScan = scanCode,
+                        dwFlags = KEYEVENTF_SCANCODE | KEYEVENTF_KEYUP,
                         time = 0,
                         dwExtraInfo = IntPtr.Zero
                     }
