@@ -10,7 +10,7 @@ namespace FiveMPoliceOverlay.Services
     public static class AutoStartManager
     {
         private const string RegistryKeyPath = @"Software\Microsoft\Windows\CurrentVersion\Run";
-        private const string AppRegistryName = "FiveMPoliceOverlay";
+        private const string AppRegistryName = "HopePDSkyNews";
 
         /// <summary>
         /// Enables auto-start on Windows login by writing executable path to registry.
@@ -95,7 +95,7 @@ namespace FiveMPoliceOverlay.Services
         private static string GetExecutablePath()
         {
             return System.Diagnostics.Process.GetCurrentProcess().MainModule?.FileName
-                   ?? AppDomain.CurrentDomain.BaseDirectory + "FiveMPoliceOverlay.exe";
+                   ?? AppDomain.CurrentDomain.BaseDirectory + "HopePDSkyNews.exe";
         }
     }
 }
