@@ -20,6 +20,13 @@ namespace FiveMPoliceOverlay
                 return;
             }
             
+            if (e.Args.Length > 0 && e.Args[0] == "--test-integration")
+            {
+                KeybindMessageIntegrationTest.RunAllTests();
+                Shutdown();
+                return;
+            }
+            
             // Application initialization will be implemented in later tasks
         }
 
