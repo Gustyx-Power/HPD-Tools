@@ -68,6 +68,12 @@ namespace FiveMPoliceOverlay.Services
         {
             try
             {
+                // Skip system keybinds (like toggle overlay) — they have no message text
+                if (string.IsNullOrEmpty(e.Template.Text) || e.Template.Id == "toggle-overlay")
+                {
+                    return;
+                }
+
                 Console.WriteLine($"[KeybindMessageIntegration] Keybind pressed, sending message: {e.Template.Name}");
 
                 // Send the message asynchronously

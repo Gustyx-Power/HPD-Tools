@@ -29,7 +29,7 @@ namespace FiveMPoliceOverlay.Services
         private static extern IntPtr GetModuleHandle(string lpModuleName);
 
         [DllImport("user32.dll")]
-        private static extern short GetKeyState(int nVirtKey);
+        private static extern short GetAsyncKeyState(int nVirtKey);
 
         private const int WH_KEYBOARD_LL = 13;
         private const int WM_KEYDOWN = 0x0100;
@@ -225,22 +225,32 @@ namespace FiveMPoliceOverlay.Services
                 try
                 {
                     var hookStruct = Marshal.PtrToStructure<KBDLLHOOKSTRUCT>(lParam);
-                    Key key = KeyInterop.KeyFromVirtualKey((int)hookStruct.vkCode);
+                    int vk = (int)hookStruct.vkCode;
+
+                    // Skip modifier-only key presses
+                    if (vk == VK_CONTROL || vk == VK_SHIFT || vk == VK_MENU ||
+                        vk == VK_LWIN || vk == VK_RWIN ||
+                        vk == 0xA0 || vk == 0xA1 || // LShift, RShift
+                        vk == 0xA2 || vk == 0xA3 || // LControl, RControl
+                        vk == 0xA4 || vk == 0xA5)   // LAlt, RAlt
+                    {
+                        return CallNextHookEx(_hookId, nCode, wParam, lParam);
+                    }
+
+                    Key key = KeyInterop.KeyFromVirtualKey(vk);
 
                     // Get current modifier state
                     ModifierKeys modifiers = GetCurrentModifiers();
 
-                    // Create keybind definition from current state
-                    var currentKeybind = new KeybindDefinition
-                    {
-                        Modifiers = modifiers,
-                        Key = key
-                    };
+                    // Build lookup key
+                    string keybindKey = $"{modifiers}+{key}";
 
-                    // Check if this keybind is registered
-                    string keybindKey = GetKeybindKey(currentKeybind);
+                    // Debug log for first few presses
+                    Console.WriteLine($"[KeybindManager] Hook: vk=0x{vk:X2} key={key} mods={modifiers} lookup='{keybindKey}'");
+
                     if (_keybindMap.TryGetValue(keybindKey, out var registration))
                     {
+                        Console.WriteLine($"[KeybindManager] MATCH: {keybindKey} -> {registration.Template.Name}");
                         OnKeybindPressed(registration.Template);
                     }
                 }
@@ -280,7 +290,7 @@ namespace FiveMPoliceOverlay.Services
         /// </summary>
         private bool IsKeyPressed(int vkCode)
         {
-            return (GetKeyState(vkCode) & 0x8000) != 0;
+            return (GetAsyncKeyState(vkCode) & 0x8000) != 0;
         }
 
         /// <summary>
