@@ -92,18 +92,17 @@ namespace FiveMPoliceOverlay.Services
         }
 
         /// <summary>
-        /// Toggles overlay visibility between shown and hidden states.
+        /// Toggles overlay panel between expanded and collapsed (ReShade-style).
         /// </summary>
         public void ToggleOverlay()
         {
-            if (_isVisible)
+            if (_overlayWindow == null) return;
+
+            Application.Current.Dispatcher.Invoke(() =>
             {
-                HideOverlay();
-            }
-            else
-            {
-                ShowOverlay();
-            }
+                _overlayWindow.TogglePanel();
+                Console.WriteLine($"[OverlayManager] Panel toggled: {(_overlayWindow.IsExpanded ? "expanded" : "collapsed")}");
+            });
         }
 
         /// <summary>
@@ -204,6 +203,8 @@ namespace FiveMPoliceOverlay.Services
             Application.Current.Dispatcher.Invoke(() =>
             {
                 _overlayWindow = new OverlayWindow(position);
+                _overlayWindow.SetConfigManager(_configManager);
+                _overlayWindow.SetKeybindManager(_keybindManager);
                 
                 // Subscribe to position changed event
                 _overlayWindow.PositionChanged += OnOverlayPositionChanged;
