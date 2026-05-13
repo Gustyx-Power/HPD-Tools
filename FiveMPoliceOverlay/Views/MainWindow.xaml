@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="FiveM Police Broadcast Overlay" 
+        Title="HOPE PD SkyNews" 
         Height="450" 
         Width="800"
         WindowStyle="None"
@@ -15,7 +15,7 @@
         ResizeMode="NoResize">
     <Grid>
         <!-- Overlay UI will be implemented in later tasks -->
-        <TextBlock Text="FiveM Police Overlay" 
+        <TextBlock Text="HOPE PD SkyNews" 
                    Foreground="White" 
                    FontSize="16" 
                    HorizontalAlignment="Center" 

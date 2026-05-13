@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="Pengaturan - FiveM Police Overlay"
+        Title="Pengaturan - HOPE PD SkyNews"
         Height="620"
         Width="820"
         MinHeight="500"
@@ -124,7 +124,7 @@
                 <TextBlock Text="⚙" FontSize="22" VerticalAlignment="Center" Margin="0,0,10,0" Foreground="{StaticResource AccentBrush}"/>
                 <StackPanel>
                     <TextBlock Text="Pengaturan" FontSize="18" FontWeight="Bold" Foreground="White"/>
-                    <TextBlock Text="FiveM Police Broadcast Overlay" FontSize="11" Foreground="{StaticResource TextSecondaryBrush}"/>
+                    <TextBlock Text="HOPE PD SkyNews" FontSize="11" Foreground="{StaticResource TextSecondaryBrush}"/>
                 </StackPanel>
             </StackPanel>
         </Border>

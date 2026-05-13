@@ -67,6 +67,14 @@ namespace FiveMPoliceOverlay.Services
                     throw new JsonException("Deserialized configuration is null");
                 }
 
+                // Auto-migrate default ToggleKeybind from Ctrl+F10 to F10 for in-game convenience
+                if (config.Overlay.ToggleKeybind.Modifiers == ModifierKeys.Control && config.Overlay.ToggleKeybind.Key == Key.F10)
+                {
+                    config.Overlay.ToggleKeybind.Modifiers = ModifierKeys.None;
+                    SaveConfiguration(config).Wait();
+                    Console.WriteLine("[ConfigurationManager] Auto-migrated default toggle keybind from Ctrl+F10 to F10");
+                }
+
                 return config;
             }
             catch (JsonException ex)
@@ -140,7 +148,7 @@ namespace FiveMPoliceOverlay.Services
                     IsVisible = true,
                     ToggleKeybind = new KeybindDefinition
                     {
-                        Modifiers = ModifierKeys.Control,
+                        Modifiers = ModifierKeys.None,
                         Key = Key.F10
                     }
                 },

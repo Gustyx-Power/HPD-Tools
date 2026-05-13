@@ -43,7 +43,7 @@ namespace FiveMPoliceOverlay
             var settingsItem = new ToolStripMenuItem("⚙  Pengaturan");
             settingsItem.Click += OnSettingsClicked;
 
-            var toggleItem = new ToolStripMenuItem("👁  Toggle Overlay (Ctrl+F10)");
+            var toggleItem = new ToolStripMenuItem("👁  Toggle Overlay (F10)");
             toggleItem.Click += OnToggleOverlayClicked;
 
             var separator = new ToolStripSeparator();
@@ -56,7 +56,7 @@ namespace FiveMPoliceOverlay
             _notifyIcon = new NotifyIcon
             {
                 Icon = LoadAppIcon(),
-                Text = "FiveM Police Overlay - Menunggu FiveM...",
+                Text = "HOPE PD SkyNews - Menunggu FiveM...",
                 Visible = true,
                 ContextMenuStrip = _contextMenu
             };
@@ -84,8 +84,8 @@ namespace FiveMPoliceOverlay
             if (_notifyIcon == null) return;
 
             _notifyIcon.Text = fiveMDetected
-                ? "FiveM Police Overlay - FiveM Terdeteksi ✓"
-                : "FiveM Police Overlay - Menunggu FiveM...";
+                ? "HOPE PD SkyNews - FiveM Terdeteksi ✓"
+                : "HOPE PD SkyNews - Menunggu FiveM...";
         }
 
         private void OnSettingsClicked(object? sender, EventArgs e)

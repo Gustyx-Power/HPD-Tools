@@ -53,7 +53,7 @@ namespace FiveMPoliceOverlay
                 Console.WriteLine($"[App] CRITICAL: Initialization failed: {ex}");
                 MessageBox.Show(
                     $"Gagal menginisialisasi aplikasi:\n\n{ex.Message}\n\nAplikasi akan ditutup.",
-                    "Error Kritis - FiveM Police Overlay",
+                    "Error Kritis - HOPE PD SkyNews",
                     MessageBoxButton.OK, MessageBoxImage.Error);
                 Shutdown(1);
             }
@@ -64,7 +64,7 @@ namespace FiveMPoliceOverlay
         /// </summary>
         private void InitializeApplication()
         {
-            Console.WriteLine("[App] Initializing FiveM Police Overlay...");
+            Console.WriteLine("[App] Initializing HOPE PD SkyNews...");
 
             // 1. Configuration
             _configManager = new ConfigurationManager();
@@ -199,7 +199,7 @@ namespace FiveMPoliceOverlay
                     $"Terjadi error yang tidak terduga:\n\n{ex.Message}\n\n" +
                     "Klik 'Yes' untuk reset konfigurasi dan restart,\n" +
                     "atau 'No' untuk melanjutkan.",
-                    "Error - FiveM Police Overlay",
+                    "Error - HOPE PD SkyNews",
                     MessageBoxButton.YesNo, MessageBoxImage.Error);
 
                 if (result == MessageBoxResult.Yes)
