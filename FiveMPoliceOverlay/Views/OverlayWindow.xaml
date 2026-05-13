@@ -5,73 +5,355 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
         Title="FiveM Police Overlay" 
-        Height="200" 
-        Width="50"
+        Height="50" Width="50"
         WindowStyle="None"
         AllowsTransparency="True"
         Background="Transparent"
         Topmost="True"
         ShowInTaskbar="False"
         ResizeMode="NoResize"
-        Left="10"
-        Top="100">
+        Left="10" Top="100">
+
+    <Window.Resources>
+        <SolidColorBrush x:Key="PanelBg" Color="#E6181825"/>
+        <SolidColorBrush x:Key="HeaderBg" Color="#FF12121F"/>
+        <SolidColorBrush x:Key="TabActiveBg" Color="#FF2A2A42"/>
+        <SolidColorBrush x:Key="TabInactiveBg" Color="Transparent"/>
+        <SolidColorBrush x:Key="AccentBrush" Color="#FF3D85C6"/>
+        <SolidColorBrush x:Key="AccentHover" Color="#FF5A9FD4"/>
+        <SolidColorBrush x:Key="DangerBrush" Color="#FFE53935"/>
+        <SolidColorBrush x:Key="SuccessBrush" Color="#FF43A047"/>
+        <SolidColorBrush x:Key="WarningBrush" Color="#FFFFA726"/>
+        <SolidColorBrush x:Key="SurfaceBrush" Color="#FF222233"/>
+        <SolidColorBrush x:Key="BorderBrush" Color="#FF3A3A55"/>
+        <SolidColorBrush x:Key="TextPrimary" Color="#FFE0E0E8"/>
+        <SolidColorBrush x:Key="TextSecondary" Color="#FF8888AA"/>
+
+        <!-- Tab Button Style -->
+        <Style x:Key="TabBtn" TargetType="RadioButton">
+            <Setter Property="Foreground" Value="{StaticResource TextSecondary}"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Padding" Value="14,8"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Border x:Name="bd" Background="Transparent" Padding="{TemplateBinding Padding}"
+                                BorderThickness="0,0,0,2" BorderBrush="Transparent">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="{StaticResource TabActiveBg}"/>
+                                <Setter TargetName="bd" Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
+                                <Setter Property="Foreground" Value="White"/>
+                                <Setter Property="FontWeight" Value="SemiBold"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="#30FFFFFF"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Action Button -->
+        <Style x:Key="ActionBtn" TargetType="Button">
+            <Setter Property="Background" Value="{StaticResource AccentBrush}"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="12,6"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bd" Background="{TemplateBinding Background}"
+                                CornerRadius="3" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="{StaticResource AccentHover}"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="bd" Property="Opacity" Value="0.4"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="DangerBtn" TargetType="Button" BasedOn="{StaticResource ActionBtn}">
+            <Setter Property="Background" Value="{StaticResource DangerBrush}"/>
+        </Style>
+        <Style x:Key="GhostBtn" TargetType="Button" BasedOn="{StaticResource ActionBtn}">
+            <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
+        </Style>
+
+        <!-- TextBox -->
+        <Style x:Key="PanelTextBox" TargetType="TextBox">
+            <Setter Property="Background" Value="#FF1A1A2A"/>
+            <Setter Property="Foreground" Value="{StaticResource TextPrimary}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="6,4"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="CaretBrush" Value="White"/>
+        </Style>
+    </Window.Resources>
+
     <Grid>
-        <!-- Compact status indicator UI (50x200px) -->
-        <Border x:Name="StatusIndicator"
-                Background="#80000000"
-                CornerRadius="5"
-                Padding="5">
-            <StackPanel>
-                <!-- Mode Indicator -->
-                <Border x:Name="ModeIndicator"
-                        Background="#FF4CAF50"
-                        CornerRadius="3"
-                        Padding="5"
-                        Margin="0,0,0,5">
-                    <TextBlock x:Name="ModeText"
-                               Text="PROD"
-                               Foreground="White"
-                               FontSize="10"
-                               FontWeight="Bold"
-                               HorizontalAlignment="Center"/>
+        <!-- ========== COLLAPSED STATE (Badge) ========== -->
+        <Border x:Name="CollapsedView" Visibility="Visible">
+            <Border x:Name="StatusIndicator" Background="#80000000" CornerRadius="5" Padding="5">
+                <StackPanel>
+                    <Border x:Name="ModeIndicator" Background="{StaticResource SuccessBrush}"
+                            CornerRadius="3" Padding="5,3">
+                        <TextBlock x:Name="ModeText" Text="PROD" Foreground="White"
+                                   FontSize="10" FontWeight="Bold" HorizontalAlignment="Center"/>
+                    </Border>
+                    <!-- Success flash -->
+                    <Border x:Name="SuccessIndicator" Background="{StaticResource SuccessBrush}"
+                            CornerRadius="3" Padding="5" Margin="0,4,0,0" Visibility="Collapsed">
+                        <TextBlock Text="✓" Foreground="White" FontSize="18" FontWeight="Bold" HorizontalAlignment="Center"/>
+                    </Border>
+                    <!-- Cooldown -->
+                    <Border x:Name="CooldownIndicator" Background="{StaticResource DangerBrush}"
+                            CornerRadius="3" Padding="5" Margin="0,4,0,0" Visibility="Collapsed">
+                        <TextBlock x:Name="CooldownText" Text="2s" Foreground="White"
+                                   FontSize="11" FontWeight="Bold" HorizontalAlignment="Center"/>
+                    </Border>
+                </StackPanel>
+            </Border>
+        </Border>
+
+        <!-- ========== EXPANDED STATE (ReShade Panel) ========== -->
+        <Border x:Name="ExpandedView" Visibility="Collapsed"
+                Background="{StaticResource PanelBg}" CornerRadius="6"
+                BorderBrush="{StaticResource BorderBrush}" BorderThickness="1">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <!-- Title Bar (draggable) -->
+                <Border Grid.Row="0" Background="{StaticResource HeaderBg}" CornerRadius="6,6,0,0"
+                        Padding="12,8" MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
+                    <Grid>
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Text="📡" FontSize="14" Margin="0,0,6,0"/>
+                            <TextBlock Text="FiveM Police Overlay" FontSize="13" FontWeight="Bold"
+                                       Foreground="White" VerticalAlignment="Center"/>
+                            <Border x:Name="ExpandedModeBadge" Background="{StaticResource SuccessBrush}"
+                                    CornerRadius="3" Padding="6,2" Margin="8,0,0,0">
+                                <TextBlock x:Name="ExpandedModeText" Text="PROD" FontSize="10"
+                                           FontWeight="Bold" Foreground="White"/>
+                            </Border>
+                        </StackPanel>
+                        <Button Content="✕" HorizontalAlignment="Right" VerticalAlignment="Center"
+                                Style="{StaticResource GhostBtn}" Padding="6,2" FontSize="13"
+                                Click="BtnCollapse_Click"/>
+                    </Grid>
                 </Border>
 
-                <!-- Success Indicator (hidden by default) -->
-                <Border x:Name="SuccessIndicator"
-                        Background="#FF4CAF50"
-                        CornerRadius="3"
-                        Padding="5"
-                        Margin="0,0,0,5"
-                        Visibility="Collapsed">
-                    <TextBlock Text="✓"
-                               Foreground="White"
-                               FontSize="24"
-                               FontWeight="Bold"
-                               HorizontalAlignment="Center"/>
-                </Border>
-
-                <!-- Cooldown Indicator (hidden by default) -->
-                <Border x:Name="CooldownIndicator"
-                        Background="#FFF44336"
-                        CornerRadius="3"
-                        Padding="5"
-                        Visibility="Collapsed">
-                    <StackPanel>
-                        <TextBlock Text="⏱"
-                                   Foreground="White"
-                                   FontSize="16"
-                                   FontWeight="Bold"
-                                   HorizontalAlignment="Center"/>
-                        <TextBlock x:Name="CooldownText"
-                                   Text="2s"
-                                   Foreground="White"
-                                   FontSize="12"
-                                   FontWeight="Bold"
-                                   HorizontalAlignment="Center"
-                                   Margin="0,2,0,0"/>
+                <!-- Tab Bar -->
+                <Border Grid.Row="1" Background="{StaticResource HeaderBg}" Padding="0"
+                        BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1">
+                    <StackPanel Orientation="Horizontal">
+                        <RadioButton x:Name="TabHome" Content="Beranda" Style="{StaticResource TabBtn}"
+                                     IsChecked="True" Checked="Tab_Changed" GroupName="PanelTabs"/>
+                        <RadioButton x:Name="TabKeybinds" Content="Tombol Pintas" Style="{StaticResource TabBtn}"
+                                     Checked="Tab_Changed" GroupName="PanelTabs"/>
+                        <RadioButton x:Name="TabTemplates" Content="Template" Style="{StaticResource TabBtn}"
+                                     Checked="Tab_Changed" GroupName="PanelTabs"/>
+                        <RadioButton x:Name="TabSettings" Content="Pengaturan" Style="{StaticResource TabBtn}"
+                                     Checked="Tab_Changed" GroupName="PanelTabs"/>
                     </StackPanel>
                 </Border>
-            </StackPanel>
+
+                <!-- Tab Content -->
+                <Grid Grid.Row="2">
+
+                    <!-- HOME TAB -->
+                    <ScrollViewer x:Name="HomeContent" VerticalScrollBarVisibility="Auto" Padding="14,10">
+                        <StackPanel>
+                            <TextBlock Text="Status" FontSize="14" FontWeight="Bold" Foreground="White" Margin="0,0,0,8"/>
+                            <Border Background="{StaticResource SurfaceBrush}" CornerRadius="4" Padding="12,10" Margin="0,0,0,8">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock x:Name="TxtFiveMStatus" Text="FiveM: Terdeteksi ✓"
+                                                   Foreground="{StaticResource SuccessBrush}" FontSize="13" FontWeight="SemiBold"/>
+                                        <TextBlock x:Name="TxtModeStatus" Text="Mode: PRODUCTION (/info)"
+                                                   Foreground="{StaticResource TextSecondary}" FontSize="11" Margin="0,4,0,0"/>
+                                        <TextBlock x:Name="TxtKeybindCount" Text="Keybind aktif: 0"
+                                                   Foreground="{StaticResource TextSecondary}" FontSize="11" Margin="0,2,0,0"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+                            <TextBlock Text="Petunjuk Singkat" FontSize="14" FontWeight="Bold" Foreground="White" Margin="0,6,0,8"/>
+                            <Border Background="{StaticResource SurfaceBrush}" CornerRadius="4" Padding="12,10">
+                                <StackPanel>
+                                    <TextBlock Text="• Ctrl+F10 untuk buka/tutup panel ini" Foreground="{StaticResource TextSecondary}" FontSize="11"/>
+                                    <TextBlock Text="• Atur tombol pintas di tab 'Tombol Pintas'" Foreground="{StaticResource TextSecondary}" FontSize="11" Margin="0,3,0,0"/>
+                                    <TextBlock Text="• Buat template di tab 'Template'" Foreground="{StaticResource TextSecondary}" FontSize="11" Margin="0,3,0,0"/>
+                                    <TextBlock Text="• Overlay click-through saat panel ditutup" Foreground="{StaticResource TextSecondary}" FontSize="11" Margin="0,3,0,0"/>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                    </ScrollViewer>
+
+                    <!-- KEYBINDS TAB -->
+                    <Grid x:Name="KeybindsContent" Visibility="Collapsed" Margin="14,10">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,8">
+                            <Button Content="＋ Tambah Keybind" Style="{StaticResource ActionBtn}" Click="BtnAddKeybind_Click"/>
+                            <TextBlock Text="  Daftar tombol pintas yang terdaftar" VerticalAlignment="Center"
+                                       Foreground="{StaticResource TextSecondary}" FontSize="11"/>
+                        </StackPanel>
+                        <DataGrid x:Name="KeybindDataGrid" Grid.Row="1"
+                                  AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False"
+                                  IsReadOnly="True" SelectionMode="Single"
+                                  Background="{StaticResource SurfaceBrush}" Foreground="{StaticResource TextPrimary}"
+                                  BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
+                                  RowBackground="{StaticResource SurfaceBrush}"
+                                  AlternatingRowBackground="{StaticResource TabActiveBg}"
+                                  GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="{StaticResource BorderBrush}"
+                                  HeadersVisibility="Column" FontSize="12">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Keybind" Binding="{Binding KeybindDisplay}" Width="120"/>
+                                <DataGridTextColumn Header="Kategori" Binding="{Binding Category}" Width="140"/>
+                                <DataGridTextColumn Header="Preview" Binding="{Binding PreviewText}" Width="*"/>
+                                <DataGridTemplateColumn Header="Aksi" Width="120">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                                <Button Content="Edit" Margin="2,0" Padding="6,2"
+                                                        Style="{StaticResource GhostBtn}" Click="BtnEditKeybind_Click" Tag="{Binding}"/>
+                                                <Button Content="Hapus" Margin="2,0" Padding="6,2"
+                                                        Style="{StaticResource DangerBtn}" Click="BtnDeleteKeybind_Click" Tag="{Binding}"/>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Grid>
+
+                    <!-- TEMPLATES TAB -->
+                    <ScrollViewer x:Name="TemplatesContent" Visibility="Collapsed" VerticalScrollBarVisibility="Auto" Padding="14,10">
+                        <StackPanel>
+                            <TextBlock Text="Template Bawaan (BERITA LANGIT KOTA SIAGA)" FontSize="13" FontWeight="Bold"
+                                       Foreground="{StaticResource WarningBrush}" Margin="0,0,0,6"/>
+                            <ListBox x:Name="PredefinedTemplateList" Background="Transparent" BorderThickness="0"
+                                     Foreground="{StaticResource TextPrimary}" FontSize="12">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid Margin="0,3">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="90"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Grid.Column="0" Text="{Binding Name}" FontWeight="SemiBold"
+                                                       Foreground="{StaticResource WarningBrush}" VerticalAlignment="Center"/>
+                                            <TextBlock Grid.Column="1" Text="{Binding PreviewText}" Foreground="{StaticResource TextSecondary}"
+                                                       VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="6,0"/>
+                                            <Button Grid.Column="2" Content="Edit" Padding="6,2" Style="{StaticResource GhostBtn}"
+                                                    Click="BtnEditPredefinedTemplate_Click" Tag="{Binding}"/>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+
+                            <Separator Background="{StaticResource BorderBrush}" Margin="0,10"/>
+
+                            <StackPanel Orientation="Horizontal" Margin="0,8,0,6">
+                                <TextBlock Text="Template Custom" FontSize="13" FontWeight="Bold" Foreground="White"
+                                           VerticalAlignment="Center"/>
+                                <Button Content="＋ Tambah" Style="{StaticResource ActionBtn}" Margin="10,0,0,0"
+                                        Padding="8,3" Click="BtnAddTemplate_Click"/>
+                            </StackPanel>
+                            <DataGrid x:Name="CustomTemplateDataGrid"
+                                      AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False"
+                                      IsReadOnly="True" SelectionMode="Single"
+                                      Background="{StaticResource SurfaceBrush}" Foreground="{StaticResource TextPrimary}"
+                                      BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
+                                      RowBackground="{StaticResource SurfaceBrush}"
+                                      AlternatingRowBackground="{StaticResource TabActiveBg}"
+                                      GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="{StaticResource BorderBrush}"
+                                      HeadersVisibility="Column" FontSize="12" MaxHeight="200">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Nama" Binding="{Binding Name}" Width="100"/>
+                                    <DataGridTextColumn Header="Kategori" Binding="{Binding Category}" Width="140"/>
+                                    <DataGridTextColumn Header="Preview" Binding="{Binding PreviewText}" Width="*"/>
+                                    <DataGridTemplateColumn Header="Aksi" Width="120">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                                    <Button Content="Edit" Margin="2,0" Padding="6,2"
+                                                            Style="{StaticResource GhostBtn}" Click="BtnEditCustomTemplate_Click" Tag="{Binding}"/>
+                                                    <Button Content="Hapus" Margin="2,0" Padding="6,2"
+                                                            Style="{StaticResource DangerBtn}" Click="BtnDeleteCustomTemplate_Click" Tag="{Binding}"/>
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </StackPanel>
+                    </ScrollViewer>
+
+                    <!-- SETTINGS TAB -->
+                    <ScrollViewer x:Name="SettingsContent" Visibility="Collapsed" VerticalScrollBarVisibility="Auto" Padding="14,10">
+                        <StackPanel>
+                            <!-- Mode -->
+                            <TextBlock Text="Mode Operasi" FontSize="13" FontWeight="Bold" Foreground="White" Margin="0,0,0,6"/>
+                            <Border Background="{StaticResource SurfaceBrush}" CornerRadius="4" Padding="12,10" Margin="0,0,0,10">
+                                <StackPanel>
+                                    <CheckBox x:Name="ChkTestMode" Foreground="{StaticResource TextPrimary}" FontSize="12"
+                                              Content="Mode Testing" Checked="ChkTestMode_Changed" Unchecked="ChkTestMode_Changed"/>
+                                    <Border x:Name="ModeStatusBorder" CornerRadius="3" Padding="8,4" Margin="0,6,0,0"
+                                            Background="{StaticResource SuccessBrush}" HorizontalAlignment="Left">
+                                        <TextBlock x:Name="ModeStatusText" Text="PRODUCTION (/info)" FontSize="11"
+                                                   FontWeight="SemiBold" Foreground="White"/>
+                                    </Border>
+                                    <TextBlock Text="TEST = /me (lokal)  |  PRODUCTION = /info (broadcast)"
+                                               Foreground="{StaticResource TextSecondary}" FontSize="10" Margin="0,4,0,0"/>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Startup -->
+                            <TextBlock Text="Startup" FontSize="13" FontWeight="Bold" Foreground="White" Margin="0,0,0,6"/>
+                            <Border Background="{StaticResource SurfaceBrush}" CornerRadius="4" Padding="12,10" Margin="0,0,0,10">
+                                <CheckBox x:Name="ChkAutoStart" Foreground="{StaticResource TextPrimary}" FontSize="12"
+                                          Content="Jalankan otomatis saat Windows startup"
+                                          Checked="ChkAutoStart_Changed" Unchecked="ChkAutoStart_Changed"/>
+                            </Border>
+
+                            <!-- Reset -->
+                            <TextBlock Text="Reset" FontSize="13" FontWeight="Bold" Foreground="White" Margin="0,0,0,6"/>
+                            <Border Background="{StaticResource SurfaceBrush}" CornerRadius="4" Padding="12,10">
+                                <StackPanel>
+                                    <TextBlock Text="Reset semua pengaturan ke default." Foreground="{StaticResource TextSecondary}" FontSize="11" Margin="0,0,0,6"/>
+                                    <Button Content="🔄 Reset ke Default" Style="{StaticResource DangerBtn}" HorizontalAlignment="Left"
+                                            Click="BtnResetDefaults_Click"/>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                    </ScrollViewer>
+                </Grid>
+            </Grid>
         </Border>
     </Grid>
 </Window>
