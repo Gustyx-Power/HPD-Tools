@@ -42,7 +42,7 @@ namespace FiveMPoliceOverlay.Services
         private readonly RateLimiter _rateLimiter;
         private bool _isTestMode;
         private const int MaxRetries = 3;
-        private const int ChatOpenDelayMs = 50;
+        private const int ChatOpenDelayMs = 350;
 
         #endregion
 
@@ -238,8 +238,8 @@ namespace FiveMPoliceOverlay.Services
                     var process = Process.GetProcessById((int)processId);
                     string processName = process.ProcessName.ToLowerInvariant();
                     
-                    // Check if it's FiveM or FiveM_GTAProcess
-                    return processName == "fivem" || processName == "fivem_gtaprocess";
+                    // Check if it's FiveM or any version of FiveM_GTAProcess (e.g. fivem_b2944_gtaprocess)
+                    return processName == "fivem" || (processName.StartsWith("fivem") && processName.Contains("gtaprocess"));
                 }
                 catch (ArgumentException)
                 {
@@ -295,6 +295,9 @@ namespace FiveMPoliceOverlay.Services
                     
                     return SendResult.SimulationFailed;
                 }
+
+                // Wait briefly for text processing to catch up in game UI
+                await Task.Delay(100);
 
                 // Step 5: Send message with Enter key
                 if (!_keyboardSimulator.PressKey(KeyboardSimulator.VirtualKeyCode.RETURN))
