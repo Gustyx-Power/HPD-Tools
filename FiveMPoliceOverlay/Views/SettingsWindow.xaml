@@ -1,0 +1,376 @@
+<Window x:Class="FiveMPoliceOverlay.Views.SettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="Pengaturan - FiveM Police Overlay"
+        Height="620"
+        Width="820"
+        MinHeight="500"
+        MinWidth="700"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="CanResize"
+        Background="#FF1E1E2E"
+        Foreground="#FFE0E0E0"
+        Icon="/app.ico">
+
+    <Window.Resources>
+        <!-- Accent Colors -->
+        <SolidColorBrush x:Key="AccentBrush" Color="#FF3D85C6"/>
+        <SolidColorBrush x:Key="AccentHoverBrush" Color="#FF5A9FD4"/>
+        <SolidColorBrush x:Key="DangerBrush" Color="#FFE53935"/>
+        <SolidColorBrush x:Key="SuccessBrush" Color="#FF4CAF50"/>
+        <SolidColorBrush x:Key="WarningBrush" Color="#FFFFA726"/>
+        <SolidColorBrush x:Key="SurfaceBrush" Color="#FF2A2A3D"/>
+        <SolidColorBrush x:Key="SurfaceLightBrush" Color="#FF35354D"/>
+        <SolidColorBrush x:Key="BorderBrush" Color="#FF444466"/>
+        <SolidColorBrush x:Key="TextPrimaryBrush" Color="#FFE0E0E0"/>
+        <SolidColorBrush x:Key="TextSecondaryBrush" Color="#FF9E9EB8"/>
+
+        <!-- Button Style -->
+        <Style x:Key="PrimaryButton" TargetType="Button">
+            <Setter Property="Background" Value="{StaticResource AccentBrush}"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="16,8"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" Background="{TemplateBinding Background}"
+                                CornerRadius="4" Padding="{TemplateBinding Padding}"
+                                BorderThickness="0">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="{StaticResource AccentHoverBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="border" Property="Opacity" Value="0.5"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="DangerButton" TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
+            <Setter Property="Background" Value="{StaticResource DangerBrush}"/>
+        </Style>
+
+        <Style x:Key="SecondaryButton" TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
+            <Setter Property="Background" Value="{StaticResource SurfaceLightBrush}"/>
+        </Style>
+
+        <!-- TextBox Style -->
+        <Style x:Key="DarkTextBox" TargetType="TextBox">
+            <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
+            <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="8,6"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="CaretBrush" Value="White"/>
+        </Style>
+
+        <!-- ComboBox Style -->
+        <Style x:Key="DarkComboBox" TargetType="ComboBox">
+            <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
+            <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="8,6"/>
+            <Setter Property="FontSize" Value="13"/>
+        </Style>
+
+        <!-- Label Style -->
+        <Style x:Key="FormLabel" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Margin" Value="0,0,0,4"/>
+        </Style>
+
+        <!-- GroupBox Style -->
+        <Style x:Key="DarkGroupBox" TargetType="GroupBox">
+            <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="10"/>
+            <Setter Property="Margin" Value="0,0,0,10"/>
+        </Style>
+
+        <!-- CheckBox Style -->
+        <Style x:Key="DarkCheckBox" TargetType="CheckBox">
+            <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Margin" Value="0,6"/>
+        </Style>
+    </Window.Resources>
+
+    <Grid Margin="0">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="#FF16162A" Padding="20,14">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <TextBlock Text="⚙" FontSize="22" VerticalAlignment="Center" Margin="0,0,10,0" Foreground="{StaticResource AccentBrush}"/>
+                <StackPanel>
+                    <TextBlock Text="Pengaturan" FontSize="18" FontWeight="Bold" Foreground="White"/>
+                    <TextBlock Text="FiveM Police Broadcast Overlay" FontSize="11" Foreground="{StaticResource TextSecondaryBrush}"/>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+
+        <!-- TabControl -->
+        <TabControl x:Name="MainTabControl" Grid.Row="1" Background="Transparent" BorderThickness="0"
+                    Margin="15,10,15,0" Padding="0">
+
+            <!-- Tab 1: Keybinds -->
+            <TabItem Header="🎮  Tombol Pintas" FontSize="13" Padding="12,8">
+                <Grid Margin="0,10,0,0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Add Button -->
+                    <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
+                        <Button x:Name="BtnAddKeybind" Content="＋ Tambah Keybind" Style="{StaticResource PrimaryButton}"
+                                Click="BtnAddKeybind_Click"/>
+                        <TextBlock Text="Klik untuk menambahkan tombol pintas baru" 
+                                   Foreground="{StaticResource TextSecondaryBrush}" FontSize="12"
+                                   VerticalAlignment="Center" Margin="12,0,0,0"/>
+                    </StackPanel>
+
+                    <!-- Keybind List -->
+                    <DataGrid x:Name="KeybindDataGrid" Grid.Row="1"
+                              AutoGenerateColumns="False"
+                              CanUserAddRows="False"
+                              CanUserDeleteRows="False"
+                              CanUserReorderColumns="False"
+                              IsReadOnly="True"
+                              SelectionMode="Single"
+                              Background="{StaticResource SurfaceBrush}"
+                              Foreground="{StaticResource TextPrimaryBrush}"
+                              BorderBrush="{StaticResource BorderBrush}"
+                              BorderThickness="1"
+                              RowBackground="{StaticResource SurfaceBrush}"
+                              AlternatingRowBackground="{StaticResource SurfaceLightBrush}"
+                              GridLinesVisibility="Horizontal"
+                              HorizontalGridLinesBrush="{StaticResource BorderBrush}"
+                              HeadersVisibility="Column"
+                              FontSize="13">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Keybind" Binding="{Binding KeybindDisplay}" Width="140"/>
+                            <DataGridTextColumn Header="Kategori" Binding="{Binding Category}" Width="180"/>
+                            <DataGridTextColumn Header="Preview Pesan" Binding="{Binding PreviewText}" Width="*"/>
+                            <DataGridTemplateColumn Header="Aksi" Width="150">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                            <Button Content="Edit" Margin="2" Padding="8,3"
+                                                    Style="{StaticResource SecondaryButton}"
+                                                    Click="BtnEditKeybind_Click"
+                                                    Tag="{Binding}"/>
+                                            <Button Content="Hapus" Margin="2" Padding="8,3"
+                                                    Style="{StaticResource DangerButton}"
+                                                    Click="BtnDeleteKeybind_Click"
+                                                    Tag="{Binding}"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </TabItem>
+
+            <!-- Tab 2: Templates -->
+            <TabItem Header="📝  Template Pesan" FontSize="13" Padding="12,8">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="0,10,0,0">
+                    <StackPanel>
+                        <!-- Predefined Templates Section -->
+                        <GroupBox Header="Template BERITA LANGIT KOTA SIAGA (Bawaan)" Style="{StaticResource DarkGroupBox}">
+                            <ListBox x:Name="PredefinedTemplateList"
+                                     Background="Transparent"
+                                     BorderThickness="0"
+                                     Foreground="{StaticResource TextPrimaryBrush}"
+                                     FontSize="13">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid Margin="2,4">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="120"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Grid.Column="0" Text="{Binding Name}" FontWeight="SemiBold"
+                                                       Foreground="{StaticResource WarningBrush}" VerticalAlignment="Center"/>
+                                            <TextBlock Grid.Column="1" Text="{Binding PreviewText}" 
+                                                       Foreground="{StaticResource TextSecondaryBrush}" VerticalAlignment="Center"
+                                                       TextTrimming="CharacterEllipsis" Margin="8,0"/>
+                                            <Button Grid.Column="2" Content="Edit" Padding="8,3"
+                                                    Style="{StaticResource SecondaryButton}"
+                                                    Click="BtnEditPredefinedTemplate_Click"
+                                                    Tag="{Binding}"/>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                        </GroupBox>
+
+                        <!-- Custom Templates Section -->
+                        <GroupBox Header="Template Custom" Style="{StaticResource DarkGroupBox}">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+
+                                <Button x:Name="BtnAddTemplate" Grid.Row="0" Content="＋ Tambah Template"
+                                        Style="{StaticResource PrimaryButton}" HorizontalAlignment="Left"
+                                        Margin="0,0,0,10" Click="BtnAddTemplate_Click"/>
+
+                                <DataGrid x:Name="CustomTemplateDataGrid" Grid.Row="1"
+                                          AutoGenerateColumns="False"
+                                          CanUserAddRows="False"
+                                          CanUserDeleteRows="False"
+                                          IsReadOnly="True"
+                                          SelectionMode="Single"
+                                          Background="{StaticResource SurfaceBrush}"
+                                          Foreground="{StaticResource TextPrimaryBrush}"
+                                          BorderBrush="{StaticResource BorderBrush}"
+                                          BorderThickness="1"
+                                          RowBackground="{StaticResource SurfaceBrush}"
+                                          AlternatingRowBackground="{StaticResource SurfaceLightBrush}"
+                                          GridLinesVisibility="Horizontal"
+                                          HorizontalGridLinesBrush="{StaticResource BorderBrush}"
+                                          HeadersVisibility="Column"
+                                          FontSize="13"
+                                          MaxHeight="250">
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="Nama" Binding="{Binding Name}" Width="140"/>
+                                        <DataGridTextColumn Header="Kategori" Binding="{Binding Category}" Width="180"/>
+                                        <DataGridTextColumn Header="Preview" Binding="{Binding PreviewText}" Width="*"/>
+                                        <DataGridTemplateColumn Header="Aksi" Width="150">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                                        <Button Content="Edit" Margin="2" Padding="8,3"
+                                                                Style="{StaticResource SecondaryButton}"
+                                                                Click="BtnEditCustomTemplate_Click"
+                                                                Tag="{Binding}"/>
+                                                        <Button Content="Hapus" Margin="2" Padding="8,3"
+                                                                Style="{StaticResource DangerButton}"
+                                                                Click="BtnDeleteCustomTemplate_Click"
+                                                                Tag="{Binding}"/>
+                                                    </StackPanel>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                            </Grid>
+                        </GroupBox>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <!-- Tab 3: General Settings -->
+            <TabItem Header="⚡  Pengaturan Umum" FontSize="13" Padding="12,8">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="0,10,0,0">
+                    <StackPanel>
+                        <!-- Startup -->
+                        <GroupBox Header="Startup" Style="{StaticResource DarkGroupBox}">
+                            <CheckBox x:Name="ChkAutoStart" Style="{StaticResource DarkCheckBox}"
+                                      Content="Jalankan otomatis saat Windows startup"
+                                      Checked="ChkAutoStart_Changed" Unchecked="ChkAutoStart_Changed"/>
+                        </GroupBox>
+
+                        <!-- Mode -->
+                        <GroupBox Header="Mode Operasi" Style="{StaticResource DarkGroupBox}">
+                            <StackPanel>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <CheckBox x:Name="ChkTestMode" Grid.Column="0" Style="{StaticResource DarkCheckBox}"
+                                              Content="Mode Testing" FontWeight="SemiBold"
+                                              Checked="ChkTestMode_Changed" Unchecked="ChkTestMode_Changed"/>
+                                </Grid>
+                                <Border x:Name="ModeStatusBorder" CornerRadius="4" Padding="10,6" Margin="0,6,0,0"
+                                        Background="{StaticResource SuccessBrush}" HorizontalAlignment="Left">
+                                    <TextBlock x:Name="ModeStatusText" Text="Mode saat ini: PRODUCTION (/info)" 
+                                               FontSize="12" FontWeight="SemiBold" Foreground="White"/>
+                                </Border>
+                                <TextBlock Text="Mode TEST menggunakan /me, PRODUCTION menggunakan /info"
+                                           Foreground="{StaticResource TextSecondaryBrush}" FontSize="11" Margin="0,6,0,0"/>
+                            </StackPanel>
+                        </GroupBox>
+
+                        <!-- Overlay Position -->
+                        <GroupBox Header="Posisi Overlay" Style="{StaticResource DarkGroupBox}">
+                            <StackPanel>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="100"/>
+                                        <ColumnDefinition Width="20"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="100"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="X:" VerticalAlignment="Center"
+                                               Foreground="{StaticResource TextPrimaryBrush}" FontSize="13"
+                                               Margin="0,0,8,0"/>
+                                    <TextBox x:Name="TxtOverlayX" Grid.Column="1" Style="{StaticResource DarkTextBox}"
+                                             Text="10" PreviewTextInput="NumericTextBox_PreviewTextInput"/>
+                                    <TextBlock Grid.Column="3" Text="Y:" VerticalAlignment="Center"
+                                               Foreground="{StaticResource TextPrimaryBrush}" FontSize="13"
+                                               Margin="0,0,8,0"/>
+                                    <TextBox x:Name="TxtOverlayY" Grid.Column="4" Style="{StaticResource DarkTextBox}"
+                                             Text="100" PreviewTextInput="NumericTextBox_PreviewTextInput"/>
+                                    <Button x:Name="BtnTestPosition" Grid.Column="5" Content="Test Posisi"
+                                            Style="{StaticResource SecondaryButton}" Margin="10,0,0,0"
+                                            HorizontalAlignment="Left" Click="BtnTestPosition_Click"/>
+                                </Grid>
+                            </StackPanel>
+                        </GroupBox>
+
+                        <!-- Reset -->
+                        <GroupBox Header="Reset" Style="{StaticResource DarkGroupBox}">
+                            <StackPanel>
+                                <TextBlock Text="Reset semua pengaturan ke nilai default. Tindakan ini tidak bisa dibatalkan."
+                                           Foreground="{StaticResource TextSecondaryBrush}" FontSize="12" Margin="0,0,0,8"/>
+                                <Button x:Name="BtnResetDefaults" Content="🔄 Reset ke Default"
+                                        Style="{StaticResource DangerButton}" HorizontalAlignment="Left"
+                                        Click="BtnResetDefaults_Click"/>
+                            </StackPanel>
+                        </GroupBox>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+        </TabControl>
+
+        <!-- Footer Buttons -->
+        <Border Grid.Row="2" Background="#FF16162A" Padding="15,10">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button x:Name="BtnOk" Content="OK" Style="{StaticResource PrimaryButton}" Width="90"
+                        Margin="0,0,8,0" Click="BtnOk_Click"/>
+                <Button x:Name="BtnApply" Content="Apply" Style="{StaticResource SecondaryButton}" Width="90"
+                        Margin="0,0,8,0" Click="BtnApply_Click"/>
+                <Button x:Name="BtnCancel" Content="Batal" Style="{StaticResource SecondaryButton}" Width="90"
+                        Click="BtnCancel_Click"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Window>
