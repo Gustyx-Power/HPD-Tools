@@ -10,12 +10,12 @@
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <SelfContained>true</SelfContained>
     <PublishSingleFile>true</PublishSingleFile>
-    <AssemblyName>FiveMPoliceOverlay</AssemblyName>
+    <AssemblyName>HopePDSkyNews</AssemblyName>
     <RootNamespace>FiveMPoliceOverlay</RootNamespace>
     <Version>1.0.0</Version>
     <Authors>Gustyx-Power</Authors>
     <Company>Xtra Manager Softwares Community</Company>
-    <Product>FiveM Police Broadcast Overlay</Product>
+    <Product>HOPE PD SkyNews</Product>
     <Description>Overlay application for FiveM police broadcast messages</Description>
     <Copyright>Copyright © 2026</Copyright>
     <ApplicationIcon>app.ico</ApplicationIcon>
