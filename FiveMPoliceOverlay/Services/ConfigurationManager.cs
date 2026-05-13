@@ -99,8 +99,8 @@ namespace FiveMPoliceOverlay.Services
                 // Serialize to JSON
                 string jsonContent = JsonSerializer.Serialize(config, _jsonOptions);
 
-                // Write to file asynchronously
-                await File.WriteAllTextAsync(_configFilePath, jsonContent);
+                // Write to file asynchronously avoiding UI thread deadlock
+                await File.WriteAllTextAsync(_configFilePath, jsonContent).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
