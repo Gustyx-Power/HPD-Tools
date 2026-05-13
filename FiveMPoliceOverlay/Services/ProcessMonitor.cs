@@ -73,20 +73,15 @@ namespace FiveMPoliceOverlay.Services
         {
             try
             {
-                // Check for FiveM.exe
-                var fivemProcesses = Process.GetProcessesByName("FiveM");
-                if (fivemProcesses.Length > 0)
+                var allProcesses = Process.GetProcesses();
+                foreach (var p in allProcesses)
                 {
-                    return true;
+                    string name = p.ProcessName.ToLowerInvariant();
+                    if (name == "fivem" || (name.StartsWith("fivem") && name.Contains("gtaprocess")))
+                    {
+                        return true;
+                    }
                 }
-
-                // Check for FiveM_GTAProcess.exe
-                var gtaProcesses = Process.GetProcessesByName("FiveM_GTAProcess");
-                if (gtaProcesses.Length > 0)
-                {
-                    return true;
-                }
-
                 return false;
             }
             catch (Exception ex)
@@ -104,21 +99,21 @@ namespace FiveMPoliceOverlay.Services
         {
             try
             {
-                // Prefer FiveM_GTAProcess.exe as it's the actual game process
-                var gtaProcesses = Process.GetProcessesByName("FiveM_GTAProcess");
-                if (gtaProcesses.Length > 0)
+                var allProcesses = Process.GetProcesses();
+                // Prefer the actual game process variant
+                var gtaProcess = allProcesses.FirstOrDefault(p =>
                 {
-                    return gtaProcesses.First();
+                    string name = p.ProcessName.ToLowerInvariant();
+                    return name.StartsWith("fivem") && name.Contains("gtaprocess");
+                });
+
+                if (gtaProcess != null)
+                {
+                    return gtaProcess;
                 }
 
-                // Fallback to FiveM.exe
-                var fivemProcesses = Process.GetProcessesByName("FiveM");
-                if (fivemProcesses.Length > 0)
-                {
-                    return fivemProcesses.First();
-                }
-
-                return null;
+                // Fallback to FiveM.exe launcher
+                return allProcesses.FirstOrDefault(p => p.ProcessName.ToLowerInvariant() == "fivem");
             }
             catch (Exception ex)
             {
